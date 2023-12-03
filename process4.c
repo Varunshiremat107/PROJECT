@@ -31,8 +31,7 @@ void* TrafficComparision()
 	sm =(struct scity *)shmat(shmid, NULL, 0);
 	if(sm->t1.cam1<=50)
 	{
-		char buff1[]="ROUTE SENSED IN CAMERA 1 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE   ";
-		strcpy(data.b1[0],buff1);
+		char buff1[]="ROUTE SENSED IN CAMERA 1 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE"  ;
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	else
@@ -61,7 +60,7 @@ void* TrafficComparision()
 	}
 	else
 	{
-		char buff6[]="ROUTE SENSED IN CAMERA 1 IS HIGH IN TRAFFIC BETTER AVOID ";
+		char buff6[]="ROUTE SENSED IN CAMERA 3 IS HIGH IN TRAFFIC BETTER AVOID ";
 		strcpy(data.b1[2],buff6);
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
@@ -84,9 +83,9 @@ void* WasteComparision()
 		error_handler("Acessing of shared memory failed ");
 	}
 	sm =(struct scity *)shmat(shmid,NULL,0);
-	int waste=sm->waste;
+	//int waste=sm->waste;
 	char buff[40];
-	sprintf(buff,"THE AMOUNT OF WASTE SENSED  :  %d K.G\n",waste);
+	sprintf(buff,"THE AMOUNT OF WASTE SENSED  :  %d K.G\n",sm->waste);
 	strcpy(data.b1[3],buff);
 	msgsnd(msqid, &data, sizeof(data.b1),0);
 	return NULL;
@@ -117,8 +116,8 @@ void* EnvComparision()
 	}
 	else if(sm->e1.noise >=50 && sm->e1.noise<=100)
 	{
-		char buff1[]="NOISE SENSED IS IN LOW RANGE ";
-		strcpy(data.b1[4],buff1);
+		char buff[]="NOISE SENSED IS IN LOW RANGE ";
+		strcpy(data.b1[4],buff);
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	
@@ -137,13 +136,13 @@ void* EnvComparision()
 	}
 	else if(sm->e1.air >=200 && sm->e1.air<=350)
 	{
-		char buff4[]="AIR QUALITY SENSED IS QUITE BAD BETTER WEAR A MASK :";
+		char buff4[]="AIR QUALITY SENSED IS QUITE BAD BETTER WEAR A MASK ";
 		strcpy(data.b1[5],buff4);
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	else
 	{
-		char buff5[]="AIR QUALITY SENSED IS TOO BAD BETTER DO NOT GO OUT :";
+		char buff5[]="AIR QUALITY SENSED IS TOO BAD BETTER DO NOT GO OUT ";
 		strcpy(data.b1[5],buff5);
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
@@ -161,7 +160,7 @@ void* EnvComparision()
 	}
 	else
 	{
-		char buff9[]="SKY IS CLEAR ENJOY YOUR DAY  ";
+		char buff9[]="THE SKY IS CLEAR ENJOY YOUR DAY ";
 		strcpy(data.b1[6],buff9);
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
@@ -183,5 +182,7 @@ int main()
 	pthread_join(t2,NULL);// waiting for the thread t2 to complete
 	pthread_create (&t3,NULL,EnvComparision,0);// thread creation
 	pthread_join(t3,NULL);
+	printf("DECISION BASED ON THE RECEIVED SENSOR IS COMPLETED \n");
+	sleep(5);
 	execl("./p5","p5",NULL,NULL);
 }
