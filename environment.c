@@ -27,7 +27,7 @@ void *Noise_Condition(void *arg)
 {
        	struct scity *sm = (struct scity *)arg;
        	int input1;
-       	printf("Enter Noise data in Decible: \n");
+       	printf("\nEnter Noise data in Decible: \n");
        	input1=random_input(1,500);
        	sm->e1.noise=input1;
        	return NULL;
@@ -38,7 +38,7 @@ void *Noise_Condition(void *arg)
 void *Air_Condition(void *arg) {
        	struct scity *sm = (struct scity *)arg;
        	int input2;
-       	printf("Enter AQI: \n");
+       	printf("\nEnter AQI: \n");
        	input2=random_input(1,500);
        	sm->e1.air=input2;
        	return NULL;
@@ -49,7 +49,7 @@ void *Air_Condition(void *arg) {
 void *Weather_Condtion(void *arg) {
        	struct scity *sm = (struct scity *)arg;
        	char input[10];
-       	printf("Enter the Weather Condition from below  : \n");
+       	printf("\nEnter the Weather Condition from below  : \n");
 	printf("Cloudy \n");
        	printf("Rainy \n");
        	printf("Clear \n");
@@ -83,6 +83,9 @@ void File_Store(struct scity *sm) {
 }
 
 int main() {
+
+        printf("\n............Environment Process............\n");
+
        	pthread_t tid1, tid2, tid3;
        	struct scity *sm; // structure pointer
         int shmid;        // shared memory id 
@@ -113,4 +116,5 @@ int main() {
 	sem_post(semaphore); // signaling semaphore
 
 	File_Store(sm);
+	execl("./p4","p4",NULL,NULL);
 }
