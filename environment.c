@@ -1,129 +1,188 @@
-#include <ctype.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <semaphore.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ipc.h> 
-#include <sys/shm.h>
-#include <unistd.h>
-#include "structure.h"
-
-int Random_Input(unsigned int min ,unsigned int max)
+#include"headerfile.h"
+#include"structure.h"
+// structure for message queue
+struct mq
 {
-       	srand(time(0));
-	return rand() %(max -min+1)+min;
-}
-
-void Error_Handler(char *message) {
-       	perror(message);
-}
-
-// Sensor input of Noise
-
-void *Noise_Condition(void *arg) 
+	char b1[7][100];
+};
+struct mq data;
+// function for error handling
+void error_handler (char *message )
 {
-       	struct scity *sm = (struct scity *)arg;
-       	unsigned int Input1;
-       	printf("\n<=:........ Noise Data Sensed in  Decible........:=> %d\n",sm->e1.noise);
-       	Input1=Random_Input(2,500);
-       	sm->e1.noise=Input1;
-       	return NULL;
+	perror(message);
+	exit(1);
 }
-
-// Entering the air condition input
-
-void *Air_Condition(void *arg) {
-       	struct scity *sm = (struct scity *)arg;
-       	unsigned int Input2;
-       	printf("\n:........Air Quality Sensed by Air Senser........:=> %d\n",sm->e1.air);
-       	Input2=Random_Input(10,500);
-       	sm->e1.air=Input2;
-       	return NULL;
-}
-
-// Entering the weather input
-
-void *Weather_Condtion(void *arg) {
-       	struct scity *sm = (struct scity *)arg;
-       	unsigned int choice ;
-       	printf("\n:........Weather Condition Sensor........:=> \n");
-       	loop:
-       	printf("\nENTER THE CHOICE : 1. Rainy \t : 2. Cloudy : 3. Clear : \n" );
-	scanf("%d",&choice);
-	
-	switch(choice)
+//function for coparision of traffic sensed datas
+void* TrafficComparision()
+{
+	int msqid;
+	int shmid;
+	struct scity *sm;
+	msqid=msgget((key_t)17834,0666 |IPC_CREAT);
+	if(msqid==-1)
 	{
-	case 1:
-	strcpy(sm->e1.weather,"Rainy");
-	break;
-	case 2:
-	strcpy(sm->e1.weather,"Cloudy");
-	break;
-	case 3:
-	strcpy(sm->e1.weather,"Clear");
-	break;
-	default:
-		printf("ENTER PROPER CHOICE\n");
-		goto loop;
+		error_handler("message queue creation is unsuccesful");
+	}
+	shmid = shmget((key_t)1234,1024,0666);
+	if(shmid ==-1)
+	{
+		error_handler("Acessing of shared memory failed ");
+	}
+	sm =(struct scity *)shmat(shmid, NULL, 0);
+	if(sm->t1.cam1<=50)
+	{
+		char buff1[]="ROUTE SENSED IN CAMERA 1 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE"  ;
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else
+	{
+		char buff2[]="ROUTE SENSED IN CAMERA 1 IS HIGH IN TRAFFIC BETTER AVOID   ";
+		strcpy(data.b1[0],buff2);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	if(sm->t1.cam2<=50)
+	{
+		char buff3[]="ROUTE SENSED IN CAMERA 2 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE  ";
+		strcpy(data.b1[1],buff3);
+		msgsnd(msqid, &data, sizeof(data.b1),0);
+	}
+	else
+	{
+		char buff4[]="ROUTE SENSED IN CAMERA 1 IS HIGH IN TRAFFIC BETTER AVOID   ";
+		strcpy(data.b1[1],buff4);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	if(sm->t1.cam3<=50)
+	{
+		char buff5[]="ROUTE SENSED IN CAMERA 2 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE  ";
+		strcpy(data.b1[2],buff5);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else
+	{
+		char buff6[]="ROUTE SENSED IN CAMERA 3 IS HIGH IN TRAFFIC BETTER AVOID ";
+		strcpy(data.b1[2],buff6);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	return NULL;
+}
+//function for waste sended data 
+void* WasteComparision()
+{
+	int msqid;
+	int shmid;
+	struct scity *sm;
+	msqid=msgget((key_t)17834,0666 | IPC_CREAT);
+	if(msqid==-1)
+	{
+		error_handler("message queue accesing is unsuccesful");
+	}
+	shmid = shmget((key_t)1234,1024,0666);
+	if(shmid ==-1)
+	{
+		error_handler("Acessing of shared memory failed ");
+	}
+	sm =(struct scity *)shmat(shmid,NULL,0);
+	//int waste=sm->waste;
+	char buff[40];
+	sprintf(buff,"THE AMOUNT OF WASTE SENSED  :  %d K.G\n",sm->waste);
+	strcpy(data.b1[3],buff);
+	msgsnd(msqid, &data, sizeof(data.b1),0);
+	return NULL;
+}
+// function for comparision of envirionmenr sensed data
+void* EnvComparision()
+{
+	int msqid;
+	int shmid;
+	struct scity *sm;
+	msqid=msgget((key_t)17834,0666 | IPC_CREAT);
+	if(msqid==-1)
+	{
+		error_handler("message queue accesing is unsuccesful");
+	}
+	shmid = shmget((key_t)1234,1024,0666);
+	
+	sm =(struct scity *)shmat(shmid, NULL, 0);
+	if(shmid ==-1)
+	{
+		error_handler("Acessing of shared memory failed ");
+	}
+	if(sm->e1.noise >=0 && sm->e1.noise <=50)
+	{
+		char buff[]="NOISE SENSED IS IN LOW RANGE ";
+		strcpy(data.b1[4],buff);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else if(sm->e1.noise >=50 && sm->e1.noise<=100)
+	{
+		char buff[]="NOISE SENSED IS IN LOW RANGE ";
+		strcpy(data.b1[4],buff);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	
+	else
+	{
+		char buff2[]="NOISE SENSED FROM THE SENSOR IS TOO HIGH BE AWARE ";
+		strcpy(data.b1[4],buff2);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	
+	if(sm->e1.air >=0 && sm->e1.air<=200)
+	{
+		char buff3[]="AIR QUALITY SENSED IS GOOD  ";
+		strcpy(data.b1[5],buff3);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else if(sm->e1.air >=200 && sm->e1.air<=350)
+	{
+		char buff4[]="AIR QUALITY SENSED IS QUITE BAD BETTER WEAR A MASK ";
+		strcpy(data.b1[5],buff4);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else
+	{
+		char buff5[]="AIR QUALITY SENSED IS TOO BAD BETTER DO NOT GO OUT ";
+		strcpy(data.b1[5],buff5);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	if(strcmp(sm->e1.weather,"Rainy")==0)
+	{
+		char buff6[]="WEATHER SENSED IS RAINY BEWARE OF GOING OUT ";
+		strcpy(data.b1[6],buff6);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else if(strcmp(sm->e1.weather,"Cloudy")==0)
+	{
+		char buff7[]="WEATHER SENSED IS CLOUDY BETTER TAKE UMBRELLA BEFORE GOING OUT  ";
+		strcpy(data.b1[6],buff7);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else
+	{
+		char buff9[]="THE SKY IS CLEAR ENJOY YOUR DAY ";
+		strcpy(data.b1[6],buff9);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	return NULL;
 }
 
-// storing data in file for backup
-
-void File_Store(struct scity *sm) {
-       	FILE *fp;
-       	fp = fopen("data1.txt", "a");
-       
-	if (fp == NULL) {
-	       	perror("ERROR OPEING FILE");
-	       	exit(1);
-	}
-
-       	fprintf(fp, "noise:%d  \n", sm->e1.noise);
-       	fprintf(fp, "air:%d  \n", sm->e1.air);
-       	fprintf(fp, "weather:%s  \n", sm->e1.weather);
-       	fclose(fp);
-}
-
-int main() {
-
-        printf("\n............Environment Process............\n");
-
-       	pthread_t tid1, tid2, tid3;
-       	struct scity *sm; // structure pointer
-        int shmid;        // shared memory id 
-		         //int val;
-        sem_t *semaphore;                        // semaphore pointer
-        semaphore = sem_open("/semap1", O_RDWR); // opening semaphore
-						 
-        if (semaphore == SEM_FAILED) {
-	       	Error_Handler("semaphore initialization failed");
-       	}
-       
-	shmid = shmget((key_t)1234, 1024, 0666); // opening shared memory
-        if (shmid == -1) {
-	       	Error_Handler("shmget failed");
-       	}
-       	printf("key of the shared memory is : %d\n", shmid);
-       	sm = (struct scity *)shmat(shmid, NULL,0); // attaching shared memory to the process
-
-       	sem_wait(semaphore); // waiting for semaphore
-       	pthread_create(&tid1, NULL, Noise_Condition, (void *)sm); // API
-       	pthread_join(tid1, NULL);
-       	pthread_create(&tid2, NULL, Air_Condition, (void *)sm);
- 
-       	pthread_join(tid2, NULL);
-	pthread_create(&tid3, NULL, Weather_Condtion, (void *)sm);
-	pthread_join(tid3, NULL);
-
-	sem_post(semaphore); // signaling semaphore
-	
-
-	File_Store(sm);
+int main()
+{
+	struct scity *sm;
+	int shmid;
+	pthread_t t1,t2,t3;
+	shmid = shmget((key_t)1234,1024,0666);
+	printf("KEY OF THE SHARED MEMORY : : %d\n",shmid); 
+	sm =(struct scity *)shmat(shmid, NULL, 0);
+	int msgid=msgget((key_t)17834,0666 | IPC_CREAT);// creation of msgqueeu
+	pthread_create (&t1,NULL,TrafficComparision,0);	// thread creation
+	pthread_join(t1,NULL);	// waiting for thread t1 to complete 
+	pthread_create (&t2,NULL,WasteComparision,0);// thread creation
+	pthread_join(t2,NULL);// waiting for the thread t2 to complete
+	pthread_create (&t3,NULL,EnvComparision,0);// thread creation
+	pthread_join(t3,NULL);
+	printf("DECISION BASED ON THE RECEIVED SENSOR IS COMPLETED \n");
 	sleep(5);
-	execl("./p4","p4",NULL,NULL);
+	execl("./p5","p5",NULL,NULL);
 }
