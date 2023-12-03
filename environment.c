@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include "structure.h"
 
-int random_input(int min ,int max)
+int Random_Input(unsigned int min ,unsigned int max)
 {
        	srand(time(0));
 	return rand() %(max -min+1)+min;
@@ -26,10 +26,10 @@ void Error_Handler(char *message) {
 void *Noise_Condition(void *arg) 
 {
        	struct scity *sm = (struct scity *)arg;
-       	int input1;
-       	printf("\nEnter Noise data in Decible: \n");
-       	input1=random_input(1,500);
-       	sm->e1.noise=input1;
+       	unsigned int Input1;
+       	printf("\n<=:........ Noise Data Sensed in  Decible........:=> %d\n",sm->e1.noise);
+       	Input1=Random_Input(1,500);
+       	sm->e1.noise=Input1;
        	return NULL;
 }
 
@@ -37,10 +37,10 @@ void *Noise_Condition(void *arg)
 
 void *Air_Condition(void *arg) {
        	struct scity *sm = (struct scity *)arg;
-       	int input2;
-       	printf("\nEnter AQI: \n");
-       	input2=random_input(1,500);
-       	sm->e1.air=input2;
+       	unsigned int Input2;
+       	printf("\n:........Air Quality Sensed by Air Senser........:=> %d\n",sm->e1.air);
+       	Input2=Random_Input(1,500);
+       	sm->e1.air=Input2;
        	return NULL;
 }
 
@@ -48,20 +48,27 @@ void *Air_Condition(void *arg) {
 
 void *Weather_Condtion(void *arg) {
        	struct scity *sm = (struct scity *)arg;
-       	char input[10];
-       	printf("\nEnter the Weather Condition from below  : \n");
-	printf("Cloudy \n");
-       	printf("Rainy \n");
-       	printf("Clear \n");
-       	scanf("%s", input);
-       
-	if ((strcmp(input, "Cloudy") == 0) || (strcmp(input, "Rainy") == 0) || (strcmp(input, "Clear") == 0)) {
-	       	strcpy((sm->e1.weather), input);
-       	} 
-	else {
-	       	Error_Handler("Error:Invalid input");
-	       	strcpy((sm->e1.weather), input);
-       	}
+       	unsigned int choice ;
+       	printf("\n:........Weather Condition Sensor........:=> \n");
+       	loop:
+       	printf("\nENTER THE CHOICE : 1. Rainy \t : 2. Cloudy : 3. Clear : \n" );
+	scanf("%d",&choice);
+	
+	switch(choice)
+	{
+	case 1:
+	strcpy(sm->e1.weather,"Rainy");
+	exit(0);
+	case 2:
+	strcpy(sm->e1.weather,"Cloudy");
+	exit(0);
+	case 3:
+	strcpy(sm->e1.weather,"Clear");
+	exit(0);
+	default:
+		printf("ENTER PROPER CHOICE\n");
+		goto loop;
+	}
 	return NULL;
 }
 
