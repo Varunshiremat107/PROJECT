@@ -1,0 +1,3 @@
+noise:480  
+air:72  
+weather:Cloudy  
