@@ -1,7 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
+#include "headerfile.h"
+
 
 #define FILENAME "file.txt"
 
@@ -23,10 +21,11 @@ int main() {
   struct mq data;
   printf("\n---------------------------------------------------\n");
   // loop to print messages from message-Queue
-  for (int i = 0; i < 7; i++) {
+  for (int i = 0; i < 7; i++) 
+  {
     msgid = msgget((key_t)17834, 0666 | IPC_CREAT);
     msgrcv(msgid, &data, sizeof(data.b1), 0, 0);
-    printf("%s\n", data.b1[i]);
+    printf("\n%s\n", data.b1[i]);
     fprintf(file, "%s\n", data.b1[i]);
   }
   printf("\n---------------------------------------------------\n");
