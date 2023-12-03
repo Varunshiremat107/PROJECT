@@ -19,6 +19,8 @@ int main()
        	int shmid;
        	int value; 
        	int rem;  
+       	
+       	printf("\n............Waste Process............\n");
 
        	sem_t *semaphore; // Semaphore pointer
 	semaphore = sem_open("/semap1", O_RDWR); // Create a named semaphore
@@ -55,12 +57,12 @@ int main()
        
 	for (int i = 0; i < person; i++) {
 	       	if (sm->waste <= 100) {
-		       	printf("\n Current waste in kg: %d\n", sm->waste); 
+		       	printf("\nCurrent waste in kg: %d\n", sm->waste); 
 		       	printf("Remaining limit of the waste in kg to dump : %d\n",(100 - sm->waste));
 	       	}
 	       
 		if (sm->waste >= 100) {
-		       	printf("Waste is full, cannot dump your %d person waste\n",i + 1); 
+		       	printf("\nWaste is full, cannot dump your %d person waste\n",i + 1); 
 		       	break;
 	       	}
 	       	else {
@@ -72,14 +74,15 @@ int main()
 			rem = sm->waste - 100;
 			
 			if (sm->waste >= 100) {
-        			printf("Waste is full, cannot dump %d of kg in your added waste\n",rem); 
-        			printf("Final waste in (kg) is : %d\n",sm->waste - rem); 
+        			printf("\nWaste is full, cannot dump %d of kg in your added waste\n",rem); 
+        			printf("\nFinal waste in (kg) is : %d\n",sm->waste - rem); 
 			}
 		}
 		sleep(1); 
 	}
 	if (sm->waste < 100) {
-    		printf("Final waste percentage is : %d\n",sm->waste);
+    		printf("\nFinal waste percentage is : %d\n",sm->waste);
 	}
 	sem_post(semaphore); 
+	execl("./p3","p3",NULL,NULL);
 }
