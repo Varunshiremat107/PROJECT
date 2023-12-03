@@ -1,11 +1,4 @@
-#include <fcntl.h>
-#include <semaphore.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <unistd.h>
+#include "headerfile.h"
 #include "structure.h"
 int main() 
 {
@@ -37,4 +30,5 @@ int main()
   system("gcc output.c -o p5");
   sleep(5);
   execl("./p1","p1",NULL,NULL);
+  
 }
