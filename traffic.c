@@ -1,13 +1,5 @@
-#include <fcntl.h>     
-#include <pthread.h>   
-#include <semaphore.h> 
-#include <stdio.h>     
-#include <stdlib.h>    
-#include <string.h>    
-#include <sys/shm.h>   
-#include <unistd.h>
 #include "structure.h"
-#include<time.h>
+#include "headerfile.h"
 
 int Random_Input(unsigned int min ,unsigned int max)
 {
@@ -71,7 +63,7 @@ int main() {
 	    char str3[10];
 	    pthread_t tid1, tid2, tid3;
 
-	    // Creating shared memory segement
+	    // accesing  shared memory segement
 	   shmid = shmget((key_t)1234, sizeof(struct scity), 0666);
 	   sm = (struct scity *)shmat(shmid, NULL, 0);
 	   sem_wait(semaphore); // Dececreasing the value of semaphore by 1
@@ -87,5 +79,8 @@ int main() {
 	   pthread_join(tid3, NULL);
 	 
 	   sem_post(semaphore); // Incrementing the value of semaphore by 1
+	   sleep(5);
 	   execl("./p2","p2",NULL,NULL);
+	   
+	   
 }
