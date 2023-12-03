@@ -1,217 +1,187 @@
-#include<stdio.h>
-#include<unistd.h>
-#include<fcntl.h>
-#include<stdlib.h>
-#include<string.h>
-#include<sys/shm.h>
-#include<sys/ipc.h>
-#include<pthread.h>
-#include<sys/msg.h>
-#include<sys/types.h>
-#define MAX_TEXT 1024
-FILE *fp;
-
-struct enviro
-{
-	int noise;
-	int air;
-	char weather[10];
-};
-struct trf
-{
-	char cam1[10];
-	char cam2[10];
-	char cam3[10];
-};
-
- struct  scity{
- struct enviro e1;
- struct trf t1;
- int  waste;
-};
-
+#include"headerfile.h"
+#include"structure.h"
+// structure for message queue
 struct mq
 {
 	char b1[7][100];
-	
 };
 struct mq data;
-
-
-
-void* trafficfunc()
+// function for error handling
+void error_handler (char *message )
 {
-		
-	
-	int shmid;
-	struct scity *sm;
-	shmid = shmget((key_t)1234,1024,0666);
-	fp=fopen("output.txt","a");
-	sm =(struct scity *)shmat(shmid, NULL, 0);
-	if(strcmp(sm->t1.cam1,"low")==0)
-	{
-		fprintf(fp,"Route 1 is clear ur good to go\n");
-
-		
-	}
-	else 
-	{
-		
-		
-		fprintf(fp,"Route 1 is high in traffic better avoid\n");
-		
-	}
-	if(strcmp(sm->t1.cam2,"low")==0)
-        {
-               
-		fprintf(fp,"Route 2 is clear ur good to go\n");
-        }
-        else
-        {
-                
-		fprintf(fp,"Route 2 is high in traffic better avoid\n");
-		
-        }
-        
-	if(strcmp(sm->t1.cam3,"low")==0)
-        {
-                
-		fprintf(fp,"Route 3 is clear ur good to go\n");
-		
-		
-        }
-        else
-        {
-                
-		fprintf(fp,"Route 1 is high in traffic better avoid\n");
-		
-        }
-        fclose(fp);
-
-
-	return NULL;
+	perror(message);
+	exit(1);
 }
-
-void* wastefunc()
+//function for coparision of traffic sensed datas
+void* TrafficComparision()
 {
-
-	
+	int msqid;
 	int shmid;
 	struct scity *sm;
+	msqid=msgget((key_t)17834,0666 |IPC_CREAT);
+	if(msqid==-1)
+	{
+		error_handler("message queue creation is unsuccesful");
+	}
 	shmid = shmget((key_t)1234,1024,0666);
-	fp=fopen("output.txt","a");
+	if(shmid ==-1)
+	{
+		error_handler("Acessing of shared memory failed ");
+	}
 	sm =(struct scity *)shmat(shmid, NULL, 0);
-	int waste=sm->waste;
-	char buff[40];
-	sprintf(buff,"the amount of waste is %d\n",waste);
-	fprintf(fp,"%s\n",buff);
-	fclose(fp);
-	return NULL;
-	
-}
-void* envfunc()
-{
-		
-	
-	int shmid;
-	struct scity *sm;
-	shmid = shmget((key_t)1234,1024,0666);
-	sm =(struct scity *)shmat(shmid, NULL, 0);
-	fp=fopen("output.txt","a");
-	if(sm->e1.noise >=0 && sm->e1.noise <=50)
+	if(sm->t1.cam1<=50)
 	{
-		
-		fprintf(fp,"Noise is in the low range \n");
-		
-		
-	}
-	else if(sm->e1.noise >=50 && sm->e1.noise<=100)
-	{
-		
-		fprintf(fp,"Noise id the medium range \n");
-		
-	}
-	else 
-	{
-		
-		fprintf(fp,"TOO noisy outside be aware\n");
-		
-	}
-	if(sm->e1.air >=0 && sm->e1.air<=200)
-	{
-		
-		fprintf(fp,"Air quality is good u can go \n");
-		
-		
-	}
-	else if(sm->e1.air >=200 && sm->e1.air<=350)
-	{
-		
-		fprintf(fp,"Air quality is quite bad better wear a mask \n");
-		
+		char buff1[]="ROUTE SENSED IN CAMERA 1 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE   ";
+		strcpy(data.b1[0],buff1);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	else
 	{
-		
-		fprintf(fp,"Air quality is too bad be alert\n");
-		
+		char buff2[]="ROUTE SENSED IN CAMERA 1 IS HIGH IN TRAFFIC BETTER AVOID   ";
+		strcpy(data.b1[0],buff2);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
-	if(strcmp(sm->e1.weather,"rainy")==0)
+	if(sm->t1.cam2<=50)
 	{
-		
-		fprintf(fp,"Its Rainy outside take ur umbrella\n");
-		
-		
+		char buff3[]="ROUTE SENSED IN CAMERA 2 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE  ";
+		strcpy(data.b1[1],buff3);
+		msgsnd(msqid, &data, sizeof(data.b1),0);
 	}
-	else if(strcmp(sm->e1.weather,"cloudy")==0)
-        {
-                
-               fprintf(fp,"Its cloudy outside wait for sometime  \n");
-		
-        }
-	else 
-		
-        {
-                
-                fprintf(fp,"Its clear  outside u can go out \n");
-		
-        }
-        fclose(fp);
+	else
+	{
+		char buff4[]="ROUTE SENSED IN CAMERA 1 IS HIGH IN TRAFFIC BETTER AVOID   ";
+		strcpy(data.b1[1],buff4);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	if(sm->t1.cam3<=50)
+	{
+		char buff5[]="ROUTE SENSED IN CAMERA 2 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE  ";
+		strcpy(data.b1[2],buff5);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else
+	{
+		char buff6[]="ROUTE SENSED IN CAMERA 1 IS HIGH IN TRAFFIC BETTER AVOID ";
+		strcpy(data.b1[2],buff6);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
 	return NULL;
-
 }
-		
-
-
-
+//function for waste sended data 
+void* WasteComparision()
+{
+	int msqid;
+	int shmid;
+	struct scity *sm;
+	msqid=msgget((key_t)17834,0666 | IPC_CREAT);
+	if(msqid==-1)
+	{
+		error_handler("message queue accesing is unsuccesful");
+	}
+	shmid = shmget((key_t)1234,1024,0666);
+	if(shmid ==-1)
+	{
+		error_handler("Acessing of shared memory failed ");
+	}
+	sm =(struct scity *)shmat(shmid,NULL,0);
+	int waste=sm->waste;
+	char buff[40];
+	sprintf(buff,"THE AMOUNT OF WASTE SENSED  :  %d K.G\n",waste);
+	strcpy(data.b1[3],buff);
+	msgsnd(msqid, &data, sizeof(data.b1),0);
+	return NULL;
+}
+// function for comparision of envirionmenr sensed data
+void* EnvComparision()
+{
+	int msqid;
+	int shmid;
+	struct scity *sm;
+	msqid=msgget((key_t)17834,0666 | IPC_CREAT);
+	if(msqid==-1)
+	{
+		error_handler("message queue accesing is unsuccesful");
+	}
+	shmid = shmget((key_t)1234,1024,0666);
+	
+	sm =(struct scity *)shmat(shmid, NULL, 0);
+	if(shmid ==-1)
+	{
+		error_handler("Acessing of shared memory failed ");
+	}
+	if(sm->e1.noise >=0 && sm->e1.noise <=50)
+	{
+		char buff[]="NOISE SENSED IS IN LOW RANGE ";
+		strcpy(data.b1[4],buff);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else if(sm->e1.noise >=50 && sm->e1.noise<=100)
+	{
+		char buff1[]="NOISE SENSED IS IN LOW RANGE ";
+		strcpy(data.b1[4],buff1);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	
+	else
+	{
+		char buff2[]="NOISE SENSED FROM THE SENSOR IS TOO HIGH BE AWARE ";
+		strcpy(data.b1[4],buff2);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	
+	if(sm->e1.air >=0 && sm->e1.air<=200)
+	{
+		char buff3[]="AIR QUALITY SENSED IS GOOD  ";
+		strcpy(data.b1[5],buff3);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else if(sm->e1.air >=200 && sm->e1.air<=350)
+	{
+		char buff4[]="AIR QUALITY SENSED IS QUITE BAD BETTER WEAR A MASK :";
+		strcpy(data.b1[5],buff4);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else
+	{
+		char buff5[]="AIR QUALITY SENSED IS TOO BAD BETTER DO NOT GO OUT :";
+		strcpy(data.b1[5],buff5);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	if(strcmp(sm->e1.weather,"Rainy")==0)
+	{
+		char buff6[]="WEATHER SENSED IS RAINY BEWARE OF GOING OUT ";
+		strcpy(data.b1[6],buff6);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else if(strcmp(sm->e1.weather,"Cloudy")==0)
+	{
+		char buff7[]="WEATHER SENSED IS CLOUDY BETTER TAKE UMBRELLA BEFORE GOING OUT  ";
+		strcpy(data.b1[6],buff7);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	else
+	{
+		char buff9[]="SKY IS CLEAR ENJOY YOUR DAY  ";
+		strcpy(data.b1[6],buff9);
+		msgsnd(msqid, &data, sizeof(data.b1), 0);
+	}
+	return NULL;
+}
 
 int main()
 {
-  struct scity *sm;
-  int shmid;
-  pthread_t t1,t2,t3;
-  
-  
-  shmid = shmget((key_t)1234,1024,0666);
-  printf("key of the shared memory is : %d\n",shmid); 
-  sm =(struct scity *)shmat(shmid, NULL, 0);
-  //printf("camera 1 %s\n",sm->t1.cam1);
-  //printf("camera 2%s\n",sm->t1.cam2);
-  //printf("camera 2 %s\n",sm->t1.cam3);
-  //printf("waste %d\n",sm->waste );
-  //printf("noise %d\n",sm->e1.noise);
-  //printf("air %d\n",sm->e1.air);
-  //printf("weather %s\n",sm->e1.weather);
-
-
-  pthread_create (&t1,NULL,trafficfunc,NULL);
-  pthread_join(t1,NULL);
-  pthread_create (&t2,NULL,wastefunc,NULL);
-  pthread_join(t2,NULL);
-  pthread_create (&t3,NULL,envfunc,NULL);
-  pthread_join(t3,NULL);
-  
-  
-  
-  }
-  
+	struct scity *sm;
+	int shmid;
+	pthread_t t1,t2,t3;
+	shmid = shmget((key_t)1234,1024,0666);
+	printf("KEY OF THE SHARED MEMORY : : %d\n",shmid); 
+	sm =(struct scity *)shmat(shmid, NULL, 0);
+	int msgid=msgget((key_t)17834,0666 | IPC_CREAT);// creation of msgqueeu
+	pthread_create (&t1,NULL,TrafficComparision,0);	// thread creation
+	pthread_join(t1,NULL);	// waiting for thread t1 to complete 
+	pthread_create (&t2,NULL,WasteComparision,0);// thread creation
+	pthread_join(t2,NULL);// waiting for the thread t2 to complete
+	pthread_create (&t3,NULL,EnvComparision,0);// thread creation
+	pthread_join(t3,NULL);
+	execl("./p5","p5",NULL,NULL);
+}
