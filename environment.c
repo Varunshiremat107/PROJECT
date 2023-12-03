@@ -28,7 +28,7 @@ void *Noise_Condition(void *arg)
        	struct scity *sm = (struct scity *)arg;
        	unsigned int Input1;
        	printf("\n<=:........ Noise Data Sensed in  Decible........:=> %d\n",sm->e1.noise);
-       	Input1=Random_Input(1,500);
+       	Input1=Random_Input(2,500);
        	sm->e1.noise=Input1;
        	return NULL;
 }
@@ -39,7 +39,7 @@ void *Air_Condition(void *arg) {
        	struct scity *sm = (struct scity *)arg;
        	unsigned int Input2;
        	printf("\n:........Air Quality Sensed by Air Senser........:=> %d\n",sm->e1.air);
-       	Input2=Random_Input(1,500);
+       	Input2=Random_Input(10,500);
        	sm->e1.air=Input2;
        	return NULL;
 }
@@ -58,13 +58,13 @@ void *Weather_Condtion(void *arg) {
 	{
 	case 1:
 	strcpy(sm->e1.weather,"Rainy");
-	exit(0);
+	break;
 	case 2:
 	strcpy(sm->e1.weather,"Cloudy");
-	exit(0);
+	break;
 	case 3:
 	strcpy(sm->e1.weather,"Clear");
-	exit(0);
+	break;
 	default:
 		printf("ENTER PROPER CHOICE\n");
 		goto loop;
@@ -121,7 +121,9 @@ int main() {
 	pthread_join(tid3, NULL);
 
 	sem_post(semaphore); // signaling semaphore
+	
 
 	File_Store(sm);
+	sleep(5);
 	execl("./p4","p4",NULL,NULL);
 }
