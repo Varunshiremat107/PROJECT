@@ -12,7 +12,7 @@ void error_handler (char *message )
 	perror(message);
 	exit(1);
 }
-//function for coparision of traffic sensed datas
+//function for comparision of traffic sensed datas
 void* TrafficComparision()
 {
 	int msqid;
@@ -36,37 +36,32 @@ void* TrafficComparision()
 	}
 	else
 	{
-		
 		strcpy(data.b1[0],"ROUTE SENSED IN CAMERA 1 IS HIGH IN TRAFFIC BETTER AVOID  THIS ROUTE ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	if(sm->t1.cam2<=50)
 	{
-		
 		strcpy(data.b1[1],"ROUTE SENSED IN CAMERA 2 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE  ");
 		msgsnd(msqid, &data, sizeof(data.b1),0);
 	}
 	else
 	{
-		
 		strcpy(data.b1[1],"ROUTE SENSED IN CAMERA 2 IS HIGH IN TRAFFIC BETTER AVOID THIS ROUTE ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	if(sm->t1.cam3<=50)
 	{
-		
 		strcpy(data.b1[2],"ROUTE SENSED IN CAMERA 3 IS CLEAR IN TRAFFIC YOU ARE GOOD TO GO IN THIS ROUTE  ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	else
 	{
-		
 		strcpy(data.b1[2],"ROUTE SENSED IN CAMERA 3 IS HIGH IN TRAFFIC BETTER AVOID THIS ROUTE ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	return NULL;
 }
-//function for waste sended data 
+//function for waste sended data to make decision
 void* WasteComparision()
 {
 	int msqid;
@@ -102,7 +97,6 @@ void* EnvComparision()
 		error_handler("message queue accesing is unsuccesful");
 	}
 	shmid = shmget((key_t)1234,1024,0666);
-	
 	sm =(struct scity *)shmat(shmid, NULL, 0);
 	if(shmid ==-1)
 	{
@@ -110,63 +104,53 @@ void* EnvComparision()
 	}
 	if(sm->e1.noise >=0 && sm->e1.noise <=50)
 	{
-		
 		strcpy(data.b1[4],"NOISE SENSED IS IN LOW RANGE ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	else if(sm->e1.noise >=50 && sm->e1.noise<=100)
 	{
-		
-		strcpy(data.b1[4],"NOISE SENSED IS IN LOW RANGE ");
+		strcpy(data.b1[4],"NOISE SENSED IS IN MEDIUM RANGE ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	
 	else
 	{
-		
 		strcpy(data.b1[4],"NOISE SENSED FROM THE SENSOR IS TOO HIGH BE AWARE ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	
 	if(sm->e1.air >=0 && sm->e1.air<=200)
 	{
-	
 		strcpy(data.b1[5],"AIR QUALITY SENSED IS GOOD  ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	else if(sm->e1.air >=200 && sm->e1.air<=350)
 	{
-		
 		strcpy(data.b1[5],"AIR QUALITY SENSED IS QUITE BAD BETTER WEAR A MASK ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	else
 	{
-		
 		strcpy(data.b1[5],"AIR QUALITY SENSED IS TOO BAD BETTER DO NOT GO OUT ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	if(strcmp(sm->e1.weather,"Rainy")==0)
 	{
-		
 		strcpy(data.b1[6],"WEATHER SENSED IS RAINY BEWARE OF GOING OUT ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	else if(strcmp(sm->e1.weather,"Cloudy")==0)
 	{
-		
 		strcpy(data.b1[6],"WEATHER SENSED IS CLOUDY BETTER TAKE UMBRELLA BEFORE GOING OUT  ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	else
 	{
-		
 		strcpy(data.b1[6],"THE SKY IS CLEAR ENJOY YOUR DAY ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	return NULL;
 }
-
 int main()
 {
 	struct scity *sm;
