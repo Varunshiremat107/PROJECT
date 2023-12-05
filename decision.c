@@ -102,12 +102,12 @@ void* EnvComparision()
 	{
 		error_handler("Acessing of shared memory failed ");
 	}
-	if(sm->e1.noise >=0 && sm->e1.noise <=50)
+	if(sm->e1.noise >=20 && sm->e1.noise <=60)
 	{
 		strcpy(data.b1[4],"NOISE SENSED IS IN LOW RANGE ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
-	else if(sm->e1.noise >=50 && sm->e1.noise<=100)
+	else if(sm->e1.noise >=60 && sm->e1.noise<=80)
 	{
 		strcpy(data.b1[4],"NOISE SENSED IS IN MEDIUM RANGE ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
@@ -119,12 +119,12 @@ void* EnvComparision()
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
 	
-	if(sm->e1.air >=0 && sm->e1.air<=200)
+	if(sm->e1.air >=0 && sm->e1.air<=100)
 	{
 		strcpy(data.b1[5],"AIR QUALITY SENSED IS GOOD  ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
 	}
-	else if(sm->e1.air >=200 && sm->e1.air<=350)
+	else if(sm->e1.air >=100 && sm->e1.air<=2000)
 	{
 		strcpy(data.b1[5],"AIR QUALITY SENSED IS QUITE BAD BETTER WEAR A MASK ");
 		msgsnd(msqid, &data, sizeof(data.b1), 0);
