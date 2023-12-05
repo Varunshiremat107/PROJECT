@@ -55,11 +55,8 @@ int main()
 	printf("\n:...............Traffic Process...............:\n");
 	// create threads for each camera function and join them to the main thread.
 	pthread_create(&tid1, NULL, Camera1, (void *)sm); // API
-        pthread_join(tid1, NULL);
 	pthread_create(&tid2, NULL, Camera2, (void *)sm);
-	pthread_join(tid2, NULL);
 	pthread_create(&tid3, NULL, Camera3, (void *)sm);
-	pthread_join(tid3, NULL); 
 	sem_post(semaphore); // Incrementing the value of semaphore by 1
 	sleep(5);
 	execl("./p2","p2",NULL,NULL);
