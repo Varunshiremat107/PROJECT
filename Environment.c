@@ -13,7 +13,7 @@ void *Noise_Condition(void *arg)
 {
        	struct scity *sm = (struct scity *)arg;
        	unsigned int Input1;
-       	Input1=Random_Input(1,500);
+       	Input1=Random_Input(20,110);
        	sm->e1.noise=Input1;
        	printf("\n:........Noise  Quality Sensed by Noise Senser........:=> %d\n",sm->e1.noise);
        	return NULL;
@@ -22,7 +22,7 @@ void *Noise_Condition(void *arg)
 void *Air_Condition(void *arg) {
        	struct scity *sm = (struct scity *)arg;
        	unsigned int Input2;
-       	Input2=Random_Input(10,500);
+       	Input2=Random_Input(0,300);
        	sm->e1.air=Input2;
        	printf("\n:........Air Quality Sensed by Air Senser........:=> %d\n",sm->e1.air);
        	return NULL;
