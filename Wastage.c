@@ -11,7 +11,7 @@ int main()
 	int value;
 	printf("\n............Waste Process............\n");
 	sem_t *semaphore;                        // Semaphore pointer
-	semaphore = sem_open("/semap1", O_RDWR); // Create a named semaphore
+	semaphore = sem_open("/semap1", O_RDWR); // Open a named semaphore
 	if (semaphore == SEM_FAILED) 
 	{
 		perror("sem_open"); // Error handling
